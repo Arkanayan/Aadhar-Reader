@@ -2,8 +2,8 @@
 
 def read_aadhar(image_file):
     """ Read aadhar file and returns dictonary of contents
-    Parameters:
-        image_file - The barcode file 
+    
+    :param image_file - The barcode file 
      """
     from PIL import Image
     import zbarlight

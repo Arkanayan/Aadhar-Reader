@@ -81,11 +81,6 @@ def authorize(aadhar_data, person_name):
 
 
 def parse_name(name):
-    import re    
-    first_name, last_name = name.split(' ', 1)
-    first_initial = re.search("^[A-Z.]+", first_name).group()
-    if not first_initial.endswith("."):
-        first_initial += "."
-    return {"FirstName": first_name,
-            "FirstInitial": first_initial,
-            "LastName": last_name}
+    firstname, lastname = name.split(' ', 2)
+    return {"FirstName": firstname,
+            "LastName": lastname}
