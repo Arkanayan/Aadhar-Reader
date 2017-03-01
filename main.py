@@ -81,6 +81,6 @@ def authorize(aadhar_data, person_name):
 
 
 def parse_name(name):
-    firstname, lastname = name.split(' ', 2)
-    return {"FirstName": firstname,
-            "LastName": lastname}
+    name_split = name.split(' ')
+    return {"FirstName": name_split[0],
+            "LastName": name_split[-1]}
