@@ -8,6 +8,7 @@
             <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
 
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+        <script src="http://knockoutjs.com/downloads/knockout-3.4.1.js"></script>
 
         <!-- For loading bar -->
         <link rel="stylesheet" href="static/css/nprogress.css">
@@ -53,7 +54,47 @@
                     {% if text %}
                         <p> {{ text }} </p>
                     {% endif %}
-                        </div>
+           
+           <!-- For use with AJAX -->
+            <div id="output-container" data-bind="visible: authorized">
+                <div class="mdl-grid">
+                    <div class="mdl-layout-spacer"></div>
+                    <h5 class="mdl-cell--6-col">Congrats, You are successfully verified.</h5>
+                    <div class="mdl-layout-spacer"></div>
+                </div>
+
+                  <div class="mdl-grid" data-bind="visible: failed">
+                    <div class="mdl-layout-spacer"></div>
+                    <h5 class="mdl-cell--6-col">Sorry, You are not authorized.</h5>
+                    <div class="mdl-layout-spacer"></div>
+                </div>
+                <div class="mdl-grid">
+                    
+                    <div class="mdl-layout-spacer"></div>
+
+                   <table class="mdl-cell mdl-cell-5--col mdl-data-table mdl-js-data-table mdl-shadow--2dp" >
+                        <tr>
+                            <td>Name: </td> <td data-bind="text: name"></td>
+
+                        </tr>
+                        <tr>
+                            <td>Father's Name: </td> <td data-bind="text: fathername"> </td>
+                        </tr>
+                        <tr>
+                            <td>Date of birth: </td> <td data-bind="text: dob"> </td>
+                        </tr>
+                        <tr>
+                            <td>Address: </td> <td data-bind="html: address" style="line-height: 1.2em;"> </td>
+                        </tr>
+
+                    </table>
+
+                    <div class="mdl-layout-spacer"></div>
+
+                </div>
+            </div>
+
+                </div>
 
                     
                 </div>
@@ -65,9 +106,37 @@
     </div>
 
     <script>
-           var data = new FormData(jQuery('form')[0]);
 
             var files;
+            var aadharModel = function(name ='', co = '', dob= '', authorized = false, house = '', loc = '', po = '', subdist = '', state = '', pc = '', failed = 'false') {
+                var self = this;
+                this.name = ko.observable(name),
+                this.co = ko.observable(co),
+                this.dob = ko.observable(dob),
+                this.authorized = ko.observable(authorized),
+                this.house = ko.observable(house),
+                this.loc = ko.observable(loc),
+                this.po = ko.observable(po),
+                this.subdist = ko.observable(authorized),
+                this.subdist = ko.observable(authorized),
+                this.state = ko.observable(state),
+                this.pc = ko.observable(pc),
+                this.failed = ko.observable(failed),
+                this.fathername = ko.computed(function() {
+                    return removeSDO(self.co());
+                }),
+                
+                this.address = ko.computed(function() {
+                     return self.house() + '<br>' + self.loc() + '<br>' + self.po() + '<br>' + self.subdist() + '<br>' + self.state() + '<br>' + self.pc();
+                });
+            };
+
+            var viewModel = new aadharModel();
+            
+            $(document).ready(function (){
+                
+                ko.applyBindings(viewModel);
+            });
 
             // Add events
             $('input[type=file]').on('change', prepareUpload);
@@ -78,9 +147,11 @@
                 files = event.target.files;
             }
 
-            $('form').on('submit', function(e){ 
+            $('form').unbind('submit').bind('submit', function(e){ 
                 e.preventDefault();
-                NProgress.start();      
+                NProgress.start();     
+                
+                viewModel.authorized(false);
                             
             var data = new FormData();
             $.each(files, function(key, value)
@@ -94,22 +165,55 @@
                     url: "authorize",
                     data: data,
                     processData: false,  // tell jQuery not to process the data
-                    contentType: false,   // tell jQuery not to set contentType                    data: dataArr,
+                    contentType: false,   // tell jQuery not to set contentType,
                     success: function(data) {
                         NProgress.done();
+                        showAadharData(data);
                         console.log(data);
+
                     },
                     error: function(data) {
                         NProgress.done();
+                      //  showFailure(data);
+                      viewModel.failed(true);
                         console.log(data);
+                        
                     }
 
                 });          
 
             });
 
+        function showAadharData(data) {
+           
+            // Copy data from one object to another
+            for (var prop in data) {
+                        if (viewModel.hasOwnProperty(prop)) {
+                            viewModel[prop](data[prop]);
+                            }
+                        }
 
+        }   
 
+        
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        // Remove S/O: or D/O: from parents' name
+        function removeSDO(parents_name) {
+            // Match S/O: or D/O:
+            var re = /(S|D)\/O:\s/gi;
+            if (parents_name.match(re)) {
+                return parents_name.replace(re, '');
+            }
+            return parents_name;
+        }
+
+        // Create nice formatted address
+        function createAddress(house, loc, po, subdist, state, pc) {
+            return house + '<br>' + loc + '<br>' + po + '<br>' + subdist + '<br>' + state + '<br>' + pc;
+        }
 
     </script>
 
