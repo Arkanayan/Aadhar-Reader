@@ -10,6 +10,7 @@ itsdangerous==0.24
 Jinja2==2.9.5
 MarkupSafe==0.23
 matplotlib==2.0.0
+networkx==1.11
 numpy==1.11.3
 olefile==0.44
 pexpect==4.2.1
@@ -22,6 +23,8 @@ pyparsing==2.1.4
 pypng==0.0.18
 python-dateutil==2.6.0
 pytz==2016.10
+scikit-image==0.12.3
+scipy==0.18.1
 simplegeneric==0.8.1
 six==1.10.0
 traitlets==4.3.1
