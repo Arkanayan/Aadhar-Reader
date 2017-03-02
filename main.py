@@ -58,6 +58,8 @@ def decode_aadhar():
             return jsonify({'error': 'No Aadhar file is provided'}), 400
         if file and allowed_file(file.filename) and request.form.get(FORM_PERSON_NAME):
             filename = secure_filename(file.filename)
+            if not check_for_folder(UPLOAD_FOLDER):
+                os.makedirs(UPLOAD_FOLDER)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
             
@@ -84,3 +86,7 @@ def parse_name(name):
     name_split = name.split(' ')
     return {"FirstName": name_split[0],
             "LastName": name_split[-1]}
+
+def check_for_folder(path):
+    import os
+    return os.path.exists(path)
